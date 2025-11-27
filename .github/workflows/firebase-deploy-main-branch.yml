@@ -20,14 +20,19 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
+          cache: 'npm' 
 
-      - name: 📦 依存関係のインストールとビルド
+      # ステップ分離 1: 依存関係のクリーンインストール (ファイルをインストール)
+      - name: 📦 依存関係のクリーンインストール
         run: |
-          rm -rf node_modules dist
+          # 以前の残骸を削除してからクリーンインストール
+          rm -rf node_modules dist 
           npm ci
-          npm run build
 
+      # ステップ分離 2: プロジェクトのビルドを実行 (run-pエラー回避のためステップを分離)
+      - name: 🔨 プロジェクトのビルドを実行
+        run: npm run build 
+        
       - name: 📂 ビルド生成物（dist）を確認
         # ビルドが成功し、distフォルダが生成されたかを確認
         run: ls -R dist 
@@ -44,6 +49,4 @@ jobs:
           projectId: tomizbase
           
           # アクションの実行起点をリポジトリのルート ( . ) に設定。
-          # これにより、アクションはルートで firebase.json を探し、
-          # その中で指定された "public": "dist" に従ってデプロイを実行します。
           entryPoint: .
