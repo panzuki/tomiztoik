@@ -1,4 +1,4 @@
-name: Firebase Hosting 自動デプロイ (Vue 3/Tailwind対応)
+name: Firebase Hosting 自動デプロイ (mainブランチ)
 
 on:
   push:
@@ -7,7 +7,6 @@ on:
 
 jobs:
   deploy:
-    # 実行環境を指定
     runs-on: ubuntu-latest
     env:
       NODE_ENV: production # ビルド時の環境変数を設定
@@ -20,31 +19,26 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm' 
-          
-      # ステップ 1: 依存関係のクリーンインストール
-      # このステップで node_modules/.bin に必要なバイナリがすべて配置される
-      - name: 📦 依存関係のクリーンインストール
-        run: |
-          rm -rf node_modules dist 
-          npm ci
+          cache: 'npm' # npmキャッシュを使用して高速化
 
-      # ステップ 2: プロジェクトのビルドを実行 (npm run コマンドを完全に回避)
-      # run-pエラーを回避するため、ローカルバイナリを直接呼び出す
-      - name: 🔨 プロジェクトのビルドを実行 (バイナリ直接実行)
+      # package.jsonの "build" スクリプトが修正されたため、
+      # npm ci と npm run build を単一のステップで実行できます。（tainosign構造）
+      - name: 📦 依存関係のインストールとビルド
         run: |
-          # package.jsonの "type-check" に相当
-          ./node_modules/.bin/vue-tsc --build 
-          # package.jsonの "build-only" に相当
-          ./node_modules/.bin/vite build 
-        
+          npm ci          # ルートの package.json を基に依存関係をインストール
+          npm run build   # 修正された "build" スクリプトを実行 (dist フォルダを生成)
+
       - name: 📂 ビルド生成物（dist）を確認
+        # ルートに生成された dist フォルダを確認
         run: ls -R dist 
         
       - name: 🔥 Firebase Hostingへデプロイ
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
+          # シークレットはそのまま使用
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_TOMIZBASE }} 
           channelId: live
           projectId: tomizbase
-          entryPoint: .
+          
+          # デプロイするフォルダをルートに生成された 'dist' に指定
+          deploy_dir: dist
