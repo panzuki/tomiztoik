@@ -20,13 +20,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-
-      - name: 📦 依存関係のインストールとビルド
-        working-directory: .
+          cache: 'npm' 
+          
+      # ステップ 1: 依存関係のインストール（run-pエラー回避のため、ビルドと分離）
+      - name: 📦 依存関係のクリーンインストール
+        # working-directoryを削除し、リポジトリルートで実行
         run: |
-          rm -rf node_modules dist
+          rm -rf node_modules dist 
           npm ci
-          npm run build
 
 #      - name: 📂 distフォルダを確認
 #        run: ls -R public
