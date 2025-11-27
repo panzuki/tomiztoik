@@ -33,7 +33,7 @@ jobs:
       - name: 🔥 Firebase Hostingへデプロイ
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_SETAPANMARKETCOUNTER }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_TOMIZBASE }}
           channelId: live
           projectId: tomizbase
           deploy_dir: public/dist
