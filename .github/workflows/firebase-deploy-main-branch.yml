@@ -22,27 +22,30 @@ jobs:
           node-version: '20'
           cache: 'npm' 
           
-      # ステップ 1: 依存関係のインストール（run-pエラー回避のため、ビルドと分離）
+      # ステップ 1: 依存関係のクリーンインストール
       - name: 📦 依存関係のクリーンインストール
-        # working-directoryを削除し、リポジトリルートで実行
+        # npm ci を実行し、必要なパッケージをインストール
         run: |
           rm -rf node_modules dist 
           npm ci
 
-#      - name: 📂 distフォルダを確認
-#        run: ls -R public
-      - name: 📂 distフォルダを確認
-        run: ls -R dist
+      # ステップ 2: プロジェクトのビルドを実行 (run-pを回避し、distを生成)
+      # type-checkとbuild-onlyを個別のコマンドとして実行
+      - name: 🔨 プロジェクトのビルドを実行
+        run: |
+          npm run type-check 
+          npm run build-only 
+        
+      - name: 📂 ビルド生成物（dist）を確認
+        # distフォルダが生成されているかを確認
+        run: ls -R dist 
         
       - name: 🔥 Firebase Hostingへデプロイ
         # Firebase Extended のデプロイアクションを使用
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
-          # Firebase サービスアカウントキー (GitHub Secretsに登録済み)
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_TOMIZBASE }} 
-          # 常に live チャンネル (本番環境) にデプロイ
           channelId: live
-          # プロジェクト ID を指定
           projectId: tomizbase
           
           # アクションの実行起点をリポジトリのルート ( . ) に設定。
