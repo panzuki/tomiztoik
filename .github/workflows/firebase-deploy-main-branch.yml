@@ -1,15 +1,13 @@
-name: Firebase Hosting 自動デプロイ (mainブランチ)
+name: Firebase Hosting 自動デプロイ (testブランチ)
 
 on:
   push:
     branches:
-      - main # mainブランチへのプッシュをトリガー
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    env:
-      NODE_ENV: production # ビルド時の環境変数を設定
 
     steps:
       - name: 🚀 コードのチェックアウト
@@ -19,26 +17,24 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm' # npmキャッシュを使用して高速化
 
-      # package.jsonの "build" スクリプトが修正されたため、
-      # npm ci と npm run build を単一のステップで実行できます。（tainosign構造）
       - name: 📦 依存関係のインストールとビルド
+        working-directory: .
         run: |
-          npm ci          # ルートの package.json を基に依存関係をインストール
-          npm run build   # 修正された "build" スクリプトを実行 (dist フォルダを生成)
+          rm -rf node_modules dist
+          npm ci
+          npm run build
 
-      - name: 📂 ビルド生成物（dist）を確認
-        # ルートに生成された dist フォルダを確認
-        run: ls -R dist 
+#      - name: 📂 distフォルダを確認
+#        run: ls -R public
+      - name: 📂 distフォルダを確認
+        run: ls -R dist
         
       - name: 🔥 Firebase Hostingへデプロイ
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
-          # シークレットはそのまま使用
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_TOMIZBASE }} 
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_TOMIZBASE }}
           channelId: live
-          projectId: tomizbase
-          
-          # デプロイするフォルダをルートに生成された 'dist' に指定
+          projectId: setapanmarketcounter
           deploy_dir: dist
+#          deploy_dir: public
