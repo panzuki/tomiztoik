@@ -23,30 +23,28 @@ jobs:
           cache: 'npm' 
           
       # ステップ 1: 依存関係のクリーンインストール
+      # このステップで node_modules/.bin に必要なバイナリがすべて配置される
       - name: 📦 依存関係のクリーンインストール
-        # npm ci を実行し、必要なパッケージをインストール
         run: |
           rm -rf node_modules dist 
           npm ci
 
-      # ステップ 2: プロジェクトのビルドを実行 (run-pを回避し、distを生成)
-      # type-checkとbuild-onlyを個別のコマンドとして実行
-      - name: 🔨 プロジェクトのビルドを実行
+      # ステップ 2: プロジェクトのビルドを実行 (npm run コマンドを完全に回避)
+      # run-pエラーを回避するため、ローカルバイナリを直接呼び出す
+      - name: 🔨 プロジェクトのビルドを実行 (バイナリ直接実行)
         run: |
-          npm run type-check 
-          npm run build-only 
+          # package.jsonの "type-check" に相当
+          ./node_modules/.bin/vue-tsc --build 
+          # package.jsonの "build-only" に相当
+          ./node_modules/.bin/vite build 
         
       - name: 📂 ビルド生成物（dist）を確認
-        # distフォルダが生成されているかを確認
         run: ls -R dist 
         
       - name: 🔥 Firebase Hostingへデプロイ
-        # Firebase Extended のデプロイアクションを使用
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_TOMIZBASE }} 
           channelId: live
           projectId: tomizbase
-          
-          # アクションの実行起点をリポジトリのルート ( . ) に設定。
           entryPoint: .
