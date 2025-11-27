@@ -1,13 +1,16 @@
-name: Firebase Hosting 自動デプロイ (testブランチ)
+name: Firebase Hosting 自動デプロイ (Vue 3/Tailwind対応)
 
 on:
   push:
     branches:
-      - main
+      - main # mainブランチへのプッシュをトリガー
 
 jobs:
   deploy:
+    # 実行環境を指定
     runs-on: ubuntu-latest
+    env:
+      NODE_ENV: production # ビルド時の環境変数を設定
 
     steps:
       - name: 🚀 コードのチェックアウト
@@ -17,24 +20,31 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm' # npmキャッシュを使用してインストールを高速化
 
       - name: 📦 依存関係のインストールとビルド
-#        working-directory: public
         run: |
-          rm -rf node_modules dist
+          # 依存関係をクリーンインストール (npm ciは package-lock.json に基づくクリーンなインストール)
           npm ci
-          npm run build
+          # ビルドを実行 (ViteがTailwindの処理を含む)
+          npm run build 
 
-#      - name: 📂 distフォルダを確認
-#        run: ls -R public
-      - name: 📂 distフォルダを確認
-        run: ls -R dist
+      - name: 📂 ビルド生成物（dist）を確認
+        # ビルドが成功し、distフォルダが生成されたかを確認
+        run: ls -R dist 
         
       - name: 🔥 Firebase Hostingへデプロイ
+        # Firebase Extended のデプロイアクションを使用
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_TOMIZBASE }}
+          # Firebase サービスアカウントキー (GitHub Secretsに登録済み)
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_TOMIZBASE }} 
+          # 常に live チャンネル (本番環境) にデプロイ
           channelId: live
+          # プロジェクト ID を指定
           projectId: tomizbase
-          deploy_dir: dist
-#          deploy_dir: public
+          
+          # アクションの実行起点をリポジトリのルート ( . ) に設定。
+          # これにより、アクションはルートで firebase.json を探し、
+          # その中で指定された "public": "dist" に従ってデプロイを実行します。
+          entryPoint: .
