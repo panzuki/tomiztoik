@@ -3,7 +3,7 @@ name: Firebase Hosting 自動デプロイ (testブランチ)
 on:
   push:
     branches:
-      - test
+      - main
 
 jobs:
   deploy:
