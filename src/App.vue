@@ -1,47 +1,23 @@
-<script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
-</script>
-
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
+  <div class="h-screen flex flex-col">
+    <div class="flex-1 overflow-auto">
+      <component :is="currentTabComponent" />
     </div>
-  </header>
-
-  <main>
-    <TheWelcome />
-  </main>
+    <TabBar v-model:tab="currentTab" />
+  </div>
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
-}
+<script setup>
+import { ref, computed } from "vue";
+import TabBar from "./components/TabBar.vue";
+import ShelfCreate from "./views/ShelfCreate.vue";
+import Delivery from "./views/Delivery.vue";
+import ShelfView from "./views/ShelfView.vue";
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-}
-</style>
+const currentTab = ref("shelfCreate");
+const currentTabComponent = computed(() => {
+  if (currentTab.value === "shelfCreate") return ShelfCreate;
+  if (currentTab.value === "delivery") return Delivery;
+  if (currentTab.value === "shelfView") return ShelfView;
+});
+</script>
