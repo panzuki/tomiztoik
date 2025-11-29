@@ -25,7 +25,7 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { useFirebase } from "@/composables/useFirebase";
+import { useFirebase } from "@/composables/useFirebase.js";
 import { collection, getDocs } from "firebase/firestore";
 
 let db;
