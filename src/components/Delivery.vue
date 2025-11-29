@@ -57,7 +57,7 @@
 
 <script setup>
 import { ref, computed } from "vue";
-import { useFirebase } from "@/composables/useFirebase";
+import { useFirebase } from "@/composables/useFirebase.js";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 const items = ref([
